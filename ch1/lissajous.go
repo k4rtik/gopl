@@ -2,7 +2,7 @@ package main
 
 import (
 	"image"
-	"image/color"
+	cp "image/color/palette"
 	"image/gif"
 	"io"
 	"math"
@@ -10,11 +10,10 @@ import (
 	"os"
 )
 
-var palette = []color.Color{color.Black, color.RGBA{0x00, 0xff, 0x00, 0xff}}
+var palette = cp.WebSafe
 
 const (
 	blackIndex = 0
-	greenIndex = 1
 )
 
 func main() {
@@ -35,10 +34,11 @@ func lissajous(out io.Writer) {
 	for i := 0; i < nframes; i++ {
 		rect := image.Rect(0, 0, 2*size+1, 2*size+1)
 		img := image.NewPaletted(rect, palette)
+		color := rand.Intn(216)
 		for t := 0.0; t < cycles*2*math.Pi; t += res {
 			x := math.Sin(t)
 			y := math.Sin(t*freq + phase)
-			img.SetColorIndex(size+int(x*size+0.5), size+int(y*size+0.5), greenIndex)
+			img.SetColorIndex(size+int(x*size+0.5), size+int(y*size+0.5), uint8(color))
 		}
 		phase += 0.1
 		anim.Delay = append(anim.Delay, delay)
