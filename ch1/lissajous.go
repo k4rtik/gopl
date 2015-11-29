@@ -9,6 +9,8 @@ import (
 	"math"
 	"math/rand"
 	"net/http"
+	"strconv"
+	"strings"
 )
 
 var palette = cp.WebSafe
@@ -19,15 +21,26 @@ const (
 
 func main() {
 	handler := func(w http.ResponseWriter, r *http.Request) {
-		lissajous(w)
+		if err := r.ParseForm(); err != nil {
+			log.Print(err)
+		}
+		cycles := 0
+		for k, v := range r.Form {
+			if k == "cycles" {
+				cycles, _ = strconv.Atoi(strings.Join(v, ""))
+			}
+		}
+		lissajous(w, cycles)
 	}
 	http.HandleFunc("/", handler)
 	log.Fatal(http.ListenAndServe("localhost:8000", nil))
 }
 
-func lissajous(out io.Writer) {
+func lissajous(out io.Writer, cycles int) {
+	if cycles == 0 {
+		cycles = 5
+	}
 	const (
-		cycles  = 5
 		res     = 0.001
 		size    = 100
 		nframes = 64
@@ -40,7 +53,7 @@ func lissajous(out io.Writer) {
 		rect := image.Rect(0, 0, 2*size+1, 2*size+1)
 		img := image.NewPaletted(rect, palette)
 		color := rand.Intn(216)
-		for t := 0.0; t < cycles*2*math.Pi; t += res {
+		for t := 0.0; t < float64(cycles)*2*math.Pi; t += res {
 			x := math.Sin(t)
 			y := math.Sin(t*freq + phase)
 			img.SetColorIndex(size+int(x*size+0.5), size+int(y*size+0.5), uint8(color))
