@@ -1,16 +1,24 @@
 package main
 
 import (
+	"bufio"
 	"fmt"
 	"os"
 	"strconv"
+	"strings"
 
 	"github.com/k4rtik/gopl/ch2/tempconv"
 	"github.com/k4rtik/gopl/ch2/unitconv"
 )
 
 func main() {
-	for _, arg := range os.Args[1:] {
+	input := strings.Join(os.Args[1:], " ")
+	if len(os.Args) == 1 {
+		iscanner := bufio.NewScanner(os.Stdin)
+		iscanner.Scan()
+		input = iscanner.Text()
+	}
+	for _, arg := range strings.Split(input, " ") {
 		t, err := strconv.ParseFloat(arg, 64)
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "unitconv: %v\n", err)
